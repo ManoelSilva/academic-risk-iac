@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  academic-risk-model:
+    build:
+      context: ../academic-risk-model
+      dockerfile: Dockerfile
+    container_name: academic-risk-model
+    ports:
+      - "5000:5000"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PORT=5000
+      - LOG_LEVEL=INFO
+      - MODEL_PATH=models/production/model.joblib
+    volumes:
+      - ../academic-risk-model/models:/app/models
+      - ../academic-risk-model/data:/app/data
+    networks:
+      - academic-risk-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  academic-risk-app:
+    build:
+      context: ../academic-risk-app
+      dockerfile: Dockerfile
+    container_name: academic-risk-app
+    ports:
+      - "4200:4200"
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - RISK_MODEL_URL=http://academic-risk-model:5000
+    depends_on:
+      - academic-risk-model
+    networks:
+      - academic-risk-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+networks:
+  academic-risk-network:
+    driver: bridge
