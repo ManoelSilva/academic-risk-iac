@@ -1,58 +1,6 @@
 version: '3.8'
 
 services:
-  academic-risk-model:
-    build:
-      context: ../academic-risk-model
-      dockerfile: Dockerfile
-    container_name: academic-risk-model
-    ports:
-      - "5000:5000"
-    environment:
-      - PYTHONUNBUFFERED=1
-      - PORT=5000
-      - LOG_LEVEL=INFO
-      - MODEL_PATH=models/production/model.joblib
-      - MLFLOW_TRACKING_URI=http://mlflow:5001
-    volumes:
-      - ../academic-risk-model/models:/app/models
-      - ../academic-risk-model/data:/app/data
-    depends_on:
-      mlflow:
-        condition: service_healthy
-    networks:
-      - academic-risk-network
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-
-  academic-risk-app:
-    build:
-      context: ../academic-risk-app
-      dockerfile: Dockerfile
-    container_name: academic-risk-app
-    ports:
-      - "4200:4200"
-      - "3000:3000"
-    environment:
-      - PORT=3000
-      - RISK_MODEL_URL=http://academic-risk-model:5000
-    depends_on:
-      - academic-risk-model
-    networks:
-      - academic-risk-network
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/api/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 60s
-
   mlflow:
     image: ghcr.io/mlflow/mlflow:v3.3.1
     container_name: mlflow
@@ -63,7 +11,7 @@ services:
     volumes:
       - mlflow-data:/mlflow
     networks:
-      - academic-risk-network
+      - monitoring-network
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5001/health')"]
@@ -87,7 +35,7 @@ services:
       mlflow:
         condition: service_healthy
     networks:
-      - academic-risk-network
+      - monitoring-network
     restart: unless-stopped
 
   prometheus:
@@ -106,7 +54,7 @@ services:
     depends_on:
       - mlflow-exporter
     networks:
-      - academic-risk-network
+      - monitoring-network
     restart: unless-stopped
 
   grafana:
@@ -126,7 +74,7 @@ services:
     depends_on:
       - prometheus
     networks:
-      - academic-risk-network
+      - monitoring-network
     restart: unless-stopped
 
 volumes:
@@ -138,5 +86,5 @@ volumes:
     driver: local
 
 networks:
-  academic-risk-network:
+  monitoring-network:
     driver: bridge

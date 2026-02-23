@@ -33,6 +33,12 @@ usermod -aG docker ec2-user
 systemctl enable docker
 systemctl start docker
 
+echo "Installing Docker Compose plugin..."
+mkdir -p /usr/local/lib/docker/cli-plugins
+curl -SL "https://github.com/docker/compose/releases/latest/download/docker-compose-linux-$(uname -m)" -o /usr/local/lib/docker/cli-plugins/docker-compose
+chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
+ln -sf /usr/local/lib/docker/cli-plugins/docker-compose /usr/local/bin/docker-compose
+
 echo "Upgrading pip..."
 if command -v python3.12 &> /dev/null; then
     python3.12 -m pip install --upgrade pip
