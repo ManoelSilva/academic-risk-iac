@@ -19,8 +19,17 @@ mkdir -p "$BUILDX_DIR"
 if ! docker buildx version &>/dev/null || \
    [ "$(docker buildx version 2>/dev/null | grep -oP 'v?\K[0-9]+\.[0-9]+')" \< "0.17" ]; then
   echo "Installing/upgrading Docker Buildx..."
-  curl -SL "https://github.com/docker/buildx/releases/latest/download/buildx-$(uname -s | tr '[:upper:]' '[:lower:]')-$(uname -m)" \
-    -o "$BUILDX_DIR/docker-buildx"
+  ARCH=$(uname -m)
+  case "$ARCH" in
+    x86_64)  ARCH="amd64" ;;
+    aarch64) ARCH="arm64" ;;
+  esac
+  BUILDX_URL=$(curl -s https://api.github.com/repos/docker/buildx/releases/latest \
+    | grep "browser_download_url.*linux-${ARCH}\"" \
+    | head -1 \
+    | cut -d '"' -f 4)
+  echo "Downloading Buildx from: $BUILDX_URL"
+  curl -SL "$BUILDX_URL" -o "$BUILDX_DIR/docker-buildx"
   chmod +x "$BUILDX_DIR/docker-buildx"
   echo "Buildx installed: $(docker buildx version)"
 else

@@ -40,7 +40,16 @@ chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
 ln -sf /usr/local/lib/docker/cli-plugins/docker-compose /usr/local/bin/docker-compose
 
 echo "Installing Docker Buildx plugin..."
-curl -SL "https://github.com/docker/buildx/releases/latest/download/buildx-linux-$(uname -m)" -o /usr/local/lib/docker/cli-plugins/docker-buildx
+ARCH=$(uname -m)
+case "$ARCH" in
+  x86_64)  ARCH="amd64" ;;
+  aarch64) ARCH="arm64" ;;
+esac
+BUILDX_URL=$(curl -s https://api.github.com/repos/docker/buildx/releases/latest \
+  | grep "browser_download_url.*linux-${ARCH}\"" \
+  | head -1 \
+  | cut -d '"' -f 4)
+curl -SL "$BUILDX_URL" -o /usr/local/lib/docker/cli-plugins/docker-buildx
 chmod +x /usr/local/lib/docker/cli-plugins/docker-buildx
 
 echo "Upgrading pip..."
