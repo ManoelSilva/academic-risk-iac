@@ -39,6 +39,10 @@ curl -SL "https://github.com/docker/compose/releases/latest/download/docker-comp
 chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
 ln -sf /usr/local/lib/docker/cli-plugins/docker-compose /usr/local/bin/docker-compose
 
+echo "Installing Docker Buildx plugin..."
+curl -SL "https://github.com/docker/buildx/releases/latest/download/buildx-linux-$(uname -m)" -o /usr/local/lib/docker/cli-plugins/docker-buildx
+chmod +x /usr/local/lib/docker/cli-plugins/docker-buildx
+
 echo "Upgrading pip..."
 if command -v python3.12 &> /dev/null; then
     python3.12 -m pip install --upgrade pip

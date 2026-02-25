@@ -13,6 +13,20 @@ if [ -z "$EC2_HOST" ]; then
   exit 1
 fi
 
+echo "Ensuring Docker Buildx plugin is installed..."
+BUILDX_DIR=/usr/local/lib/docker/cli-plugins
+mkdir -p "$BUILDX_DIR"
+if ! docker buildx version &>/dev/null || \
+   [ "$(docker buildx version 2>/dev/null | grep -oP 'v?\K[0-9]+\.[0-9]+')" \< "0.17" ]; then
+  echo "Installing/upgrading Docker Buildx..."
+  curl -SL "https://github.com/docker/buildx/releases/latest/download/buildx-$(uname -s | tr '[:upper:]' '[:lower:]')-$(uname -m)" \
+    -o "$BUILDX_DIR/docker-buildx"
+  chmod +x "$BUILDX_DIR/docker-buildx"
+  echo "Buildx installed: $(docker buildx version)"
+else
+  echo "Buildx already up to date: $(docker buildx version)"
+fi
+
 if [ -d "$APP_DIR" ]; then
   rm -rf "$APP_DIR"
 fi
