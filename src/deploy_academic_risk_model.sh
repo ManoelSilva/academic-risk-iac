@@ -55,6 +55,7 @@ Environment="PYTHONPATH=$APP_DIR/src"
 Environment="PORT=5000"
 Environment="LOG_LEVEL=INFO"
 Environment="MODEL_PATH=$APP_DIR/models/production/model.joblib"
+Environment="MLFLOW_TRACKING_URI=http://localhost:5001"
 ExecStart=$VENV_DIR/bin/python3.12 $APP_DIR/src/api/main.py
 Restart=always
 

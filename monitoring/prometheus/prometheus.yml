@@ -27,11 +27,11 @@ scrape_configs:
   - job_name: "academic-risk-model"
     scrape_interval: 15s
     static_configs:
-      - targets: ["academic-risk-model:5000"]
+      - targets: ["host.docker.internal:5000"]
     metrics_path: /metrics
 
   - job_name: "academic-risk-app"
     scrape_interval: 15s
     static_configs:
-      - targets: ["academic-risk-app:3000"]
+      - targets: ["host.docker.internal:3000"]
     metrics_path: /api/metrics
