@@ -1,0 +1,97 @@
+groups:
+  - name: model_health
+    rules:
+      - alert: ModelNotLoaded
+        expr: model_loaded == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "ML model is not loaded"
+          description: "The academic risk model has not been loaded for more than 2 minutes. Predictions will fail."
+
+      - alert: HighPredictionLatency
+        expr: histogram_quantile(0.95, rate(prediction_latency_seconds_bucket[5m])) > 2
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High prediction latency (p95 > 2s)"
+          description: "95th percentile prediction latency is {{ $value }}s over the last 5 minutes."
+
+      - alert: HighPredictionErrorRate
+        expr: |
+          (
+            sum(rate(prediction_requests_total{status="error"}[5m]))
+            /
+            sum(rate(prediction_requests_total[5m]))
+          ) > 0.1
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High prediction error rate (>10%)"
+          description: "More than 10% of prediction requests are failing."
+
+      - alert: DataDriftDetected
+        expr: drift_detected == 1
+        for: 0m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Data drift detected"
+          description: "The latest data drift check indicates feature distribution shift. Model retraining may be needed."
+
+  - name: api_health
+    rules:
+      - alert: HighAPIErrorRate
+        expr: |
+          (
+            sum(rate(http_requests_total{status_code=~"5.."}[5m]))
+            /
+            sum(rate(http_requests_total[5m]))
+          ) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High API error rate (>5%)"
+          description: "More than 5% of API requests are returning 5xx errors."
+
+      - alert: HighAPILatency
+        expr: histogram_quantile(0.95, rate(http_request_latency_seconds_bucket[5m])) > 5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High API latency (p95 > 5s)"
+          description: "95th percentile API latency is {{ $value }}s."
+
+      - alert: ModelAPIUnreachable
+        expr: model_api_healthy == 0
+        for: 3m
+        labels:
+          severity: critical
+        annotations:
+          summary: "ML Model API unreachable from app"
+          description: "The academic-risk-app cannot reach the ML model API for more than 3 minutes."
+
+  - name: infrastructure
+    rules:
+      - alert: ServiceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Service {{ $labels.job }} is down"
+          description: "Prometheus cannot scrape {{ $labels.instance }} for job {{ $labels.job }}."
+
+      - alert: HighMemoryUsage
+        expr: process_resident_memory_bytes / 1024 / 1024 > 512
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage (>512MB)"
+          description: "{{ $labels.job }} is using {{ $value }}MB of memory."
