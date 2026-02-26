@@ -1,3 +1,9 @@
+variable "model_api_port" {
+  description = "Port for the Academic Risk Model API"
+  type        = number
+  default     = 5000
+}
+
 provider "aws" {
   region = "us-east-1"
 }
@@ -64,8 +70,9 @@ resource "aws_security_group" "academic_risk_sg" {
   }
 
   ingress {
-    from_port   = 5000
-    to_port     = 5000
+    description = "Model API"
+    from_port   = var.model_api_port
+    to_port     = var.model_api_port
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }

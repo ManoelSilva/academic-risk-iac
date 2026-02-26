@@ -7,10 +7,10 @@ services:
       dockerfile: Dockerfile
     container_name: academic-risk-model
     ports:
-      - "5000:5000"
+      - "${MODEL_API_PORT:-5000}:${MODEL_API_PORT:-5000}"
     environment:
       - PYTHONUNBUFFERED=1
-      - PORT=5000
+      - PORT=${MODEL_API_PORT:-5000}
       - LOG_LEVEL=INFO
       - MODEL_PATH=models/production/model.joblib
       - MLFLOW_TRACKING_URI=http://mlflow:5001
@@ -24,7 +24,7 @@ services:
       - academic-risk-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"]
+      test: ["CMD", "python", "-c", "import urllib.request; import os; urllib.request.urlopen(f'http://localhost:{os.environ.get(\"PORT\", 5000)}/health')"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -40,7 +40,7 @@ services:
       - "3000:3000"
     environment:
       - PORT=3000
-      - RISK_MODEL_URL=http://academic-risk-model:5000
+      - RISK_MODEL_URL=http://academic-risk-model:${MODEL_API_PORT:-5000}
     depends_on:
       - academic-risk-model
     networks:

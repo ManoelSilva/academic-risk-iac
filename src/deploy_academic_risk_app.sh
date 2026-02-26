@@ -7,6 +7,7 @@ APP_NAME=academic-risk-app
 APP_DIR=/opt/$APP_NAME
 REPO_URL="https://github.com/ManoelSilva/academic-risk-app"
 BRANCH=main
+MODEL_API_PORT="${MODEL_API_PORT:-5000}"
 
 if [ -z "$EC2_HOST" ]; then
   echo "Error: EC2_HOST environment variable is not set."
@@ -50,7 +51,7 @@ User=ec2-user
 WorkingDirectory=$APP_DIR
 Environment="PORT=3000"
 Environment="NODE_ENV=production"
-Environment="RISK_MODEL_URL=http://localhost:5000"
+Environment="RISK_MODEL_URL=http://localhost:$MODEL_API_PORT"
 ExecStart=/usr/bin/node $APP_DIR/server/index.js
 Restart=always
 

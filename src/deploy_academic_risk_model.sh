@@ -10,6 +10,7 @@ BRANCH=main
 PYTHON_BIN=python3.12
 VENV_DIR=$APP_DIR/venv
 SERVICE_FILE=/etc/systemd/system/$APP_NAME.service
+MODEL_API_PORT="${MODEL_API_PORT:-5000}"
 
 if [ -z "$EC2_HOST" ]; then
   echo "Error: EC2_HOST environment variable is not set."
@@ -52,7 +53,7 @@ User=ec2-user
 WorkingDirectory=$APP_DIR/src
 Environment="PYTHONUNBUFFERED=1"
 Environment="PYTHONPATH=$APP_DIR/src"
-Environment="PORT=5000"
+Environment="PORT=$MODEL_API_PORT"
 Environment="LOG_LEVEL=INFO"
 Environment="MODEL_PATH=$APP_DIR/models/production/model.joblib"
 Environment="MLFLOW_TRACKING_URI=http://localhost:5001"
