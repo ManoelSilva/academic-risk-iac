@@ -6,6 +6,7 @@ on:
       academic_risk_app_branch:
         description: "Branch to deploy for academic-risk-app"
         required: true
+        default: "main"
 
 jobs:
   deploy:
