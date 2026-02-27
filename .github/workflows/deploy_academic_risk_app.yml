@@ -2,6 +2,19 @@ name: Deploy Academic Risk App to EC2
 
 on:
   workflow_dispatch:
+    inputs:
+      academic_risk_app_branch:
+        description: "Branch to deploy for academic-risk-app"
+        required: true
+        default: "main"
+      academic_risk_model_branch:
+        description: "Branch to deploy for academic-risk-model"
+        required: true
+        default: "main"
+      monitoring_branch:
+        description: "Branch to deploy for monitoring stack"
+        required: true
+        default: "main"
 
 jobs:
   deploy:
@@ -9,6 +22,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.academic_risk_app_branch || github.ref_name }}
 
       - name: Set up SSH
         uses: webfactory/ssh-agent@v0.9.0
@@ -34,7 +49,7 @@ jobs:
       - name: Run deploy script on EC2
         run: |
           ssh -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_HOST }} \
-            "sudo EC2_HOST='${{ secrets.EC2_HOST }}' MODEL_API_PORT='${{ secrets.MODEL_API_PORT }}' bash /tmp/deploy_academic_risk_app.sh"
+            "sudo EC2_HOST='${{ secrets.EC2_HOST }}' BRANCH='${{ github.event.inputs.academic_risk_app_branch || github.ref_name }}' MODEL_API_PORT='${{ secrets.MODEL_API_PORT }}' bash /tmp/deploy_academic_risk_app.sh"
 
 # Required secrets:
 # - EC2_SSH_KEY: Private SSH key for ec2-user

@@ -6,7 +6,7 @@ set -e
 APP_NAME=academic-risk-monitoring
 APP_DIR=/opt/$APP_NAME
 REPO_URL="https://github.com/ManoelSilva/academic-risk-iac"
-BRANCH=main
+BRANCH="${BRANCH:-main}"
 
 if [ -z "$EC2_HOST" ]; then
   echo "Error: EC2_HOST environment variable is not set."

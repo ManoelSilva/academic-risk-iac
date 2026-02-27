@@ -6,7 +6,7 @@ set -e
 APP_NAME=academic-risk-app
 APP_DIR=/opt/$APP_NAME
 REPO_URL="https://github.com/ManoelSilva/academic-risk-app"
-BRANCH=main
+BRANCH="${BRANCH:-main}"
 MODEL_API_PORT="${MODEL_API_PORT:-5000}"
 
 if [ -z "$EC2_HOST" ]; then

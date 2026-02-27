@@ -6,7 +6,7 @@ set -e
 APP_NAME=academic-risk-model
 APP_DIR=/opt/$APP_NAME
 REPO_URL="https://github.com/ManoelSilva/academic-risk-model"
-BRANCH=main
+BRANCH="${BRANCH:-main}"
 PYTHON_BIN=python3.12
 VENV_DIR=$APP_DIR/venv
 SERVICE_FILE=/etc/systemd/system/$APP_NAME.service
