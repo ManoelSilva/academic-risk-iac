@@ -12,10 +12,15 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout IaC repository
+        uses: actions/checkout@v4
+
+      - name: Checkout Academic Risk Model branch
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.academic_risk_model_branch || github.ref_name }}
+          repository: ManoelSilva/academic-risk-model
+          ref: ${{ github.event.inputs.academic_risk_model_branch || 'main' }}
+          path: academic-risk-model-src
 
       - name: Set up SSH
         uses: webfactory/ssh-agent@v0.9.0
