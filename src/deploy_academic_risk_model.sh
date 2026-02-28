@@ -43,6 +43,12 @@ pip install -r $APP_DIR/requirements.txt
 
 deactivate
 
+# Replace PUBLIC_IP in swagger.yml with the actual ec2 host IP
+SWAGGER_FILE=$APP_DIR/src/api/swagger.yml
+if [ -f "$SWAGGER_FILE" ]; then
+  sed -i "s|http://PUBLIC_IP:5000|http://$EC2_HOST:5000|g" "$SWAGGER_FILE"
+fi
+
 cat <<EOF > $SERVICE_FILE
 [Unit]
 Description=Academic Risk Model API
