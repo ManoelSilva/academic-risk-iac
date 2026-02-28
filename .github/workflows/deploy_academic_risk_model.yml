@@ -35,7 +35,7 @@ jobs:
       - name: Run deploy script on EC2
         run: |
           ssh -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_HOST }} \
-            "sudo EC2_HOST='${{ secrets.EC2_HOST }}' BRANCH='${{ github.event.inputs.academic_risk_model_branch || github.ref_name }}' MODEL_API_PORT='${{ secrets.MODEL_API_PORT }}' bash /tmp/deploy_academic_risk_model.sh"
+            "sudo EC2_HOST='${{ secrets.EC2_HOST }}' AWS_HOST='${{ secrets.EC2_HOST }}' BRANCH='${{ github.event.inputs.academic_risk_model_branch || github.ref_name }}' MODEL_API_PORT='${{ secrets.MODEL_API_PORT }}' bash /tmp/deploy_academic_risk_model.sh"
 
 # Required secrets:
 # - EC2_SSH_KEY: Private SSH key for ec2-user
